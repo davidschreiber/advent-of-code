@@ -89,6 +89,20 @@
 
 ; day 2; example 2
 
+(defn create-program-seeds
+  "Creates a list of seed value pairs"
+  [x y]
+  (partition 2
+             (interleave
+              (take (* x y) (cycle (range 0 x)))
+              (mapcat #(repeat x %) (range 0 y)))))
+
+(defn seed-yields-result-factory
+  [program result] 
+  #(let [[seed1 seed2] %]
+      (= result (get-program-result (run-program
+                                     (prepare-program-seeds program seed1 seed2))))))
+
 ; Better approach than this: Create a lazy sequence of seed pairs, 
 ; iterate over the list, and stop with the result.
 (defn find-program-seeds
@@ -96,14 +110,7 @@
    by trying different program seeds values. Seed values is a vector
    containing two values. Returns a vector with two values."
   [program desired-output]
-  (loop [seed1 0 seed2 0]
-    (let [program-output (load-and-run-program-with-seeds seed1 seed2)]
-      (if (= desired-output program-output)
-        [seed1, seed2]
-        (if (< seed2 99)
-          (recur seed1 (inc seed2))
-          (if (< seed1 99)
-            (recur (inc seed1) 0)
-            (println "Did not find desired output.")))))))
+  (let [seed-values (create-program-seeds 100 100)]
+    (first (filter (seed-yields-result-factory program desired-output) seed-values))))
 
-(find-program-seeds (read-program) 19690720)
+(find-program-seeds (read-program) 193409710690720)

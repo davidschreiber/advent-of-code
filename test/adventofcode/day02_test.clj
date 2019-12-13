@@ -53,6 +53,10 @@
     (is (= [1,2,3,0,0] (prepare-program-seeds [1,0,0,0,0] 2 3)))
     (is (= [1,99,0,0,0,99] (prepare-program-seeds [1,0,0,0,0,99] 99 0)))))
 
+(deftest test-create-program-seeds
+  (testing "Creating program seeds produces values"
+    (is (= '((0 0) (1 0) (2 0) (0 1) (1 1) (2 1) (0 2) (1 2) (2 2)) (create-program-seeds 3 3)))))
+
 (deftest test-find-program-seeds
   (testing "Checks that find-program-seeds produces the originally used 1202 code."
     (is (= [12, 2] (find-program-seeds (read-program) 3409710)))))

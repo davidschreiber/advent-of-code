@@ -55,7 +55,9 @@
 
 (deftest test-create-program-seeds
   (testing "Creating program seeds produces values"
-    (is (= '((0 0) (1 0) (2 0) (0 1) (1 1) (2 1) (0 2) (1 2) (2 2)) (create-program-seeds 3 3)))))
+    (is (= '((0 0) (1 0) (2 0) (0 1) (1 1) (2 1) (0 2) (1 2) (2 2)) (create-program-seeds 3 3)))
+    (is (= '((0 0) (1 0)) (create-program-seeds 2 1)))
+    ))
 
 (deftest test-find-program-seeds
   (testing "Checks that find-program-seeds produces the originally used 1202 code."

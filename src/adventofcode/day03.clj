@@ -36,17 +36,45 @@
   (let [[x1 y1] start-point [vx vy] movement-vector]
     [[x1 y1] [(+ x1 vx) (+ y1 vy)]]))
 
+; Step coordinates
+
+(defn get-steps [command]
+  (edn/read-string (subs command 1)))
+
+(defn get-step-coordinates
+  [start command]
+  (let [[x y] start
+        direction (subs command 0 1)
+        steps (get-steps command)]
+    (case direction
+      "U" (partition 2
+                     (interleave
+                      (repeat (+ steps 1) x)
+                      (range y (- y steps 1) -1)))
+      "D" (partition 2
+                     (interleave
+                      (repeat (+ steps 1) x)
+                      (range y (+ y steps 1) 1)))
+      "R" (partition 2
+                     (interleave
+                      (range x (+ x steps 1) 1)
+                      (repeat (+ steps 1) y)))
+      "L" (partition 2
+                     (interleave
+                      (range x (- x steps 1) -1)
+                      (repeat (+ steps 1) y))))))
+
 ; Input parsing
 (defn read-input-file [] (slurp "day3.txt"))
 
-(defn parse-wire-command [file-content]
-  (->> (str/split-lines file-content)
-       (map #(str/split % #","))
-       (loop []))
+; (defn parse-wire-command [file-content]
+;   (->> (str/split-lines file-content)
+;        (map #(str/split % #","))
+;        (loop []))
 
-(defn to-movement-vector 
+(defn to-movement-vector
   "Takes a single movement command (for example 'U10') and turns it into
-   a 2-dimensional movement vector in the form of [x y]."
+   a 2-dimensional movement vector in the form of [x y] in screen coordinates."
   [movement-command]
   (let [direction (subs movement-command 0 1)
         steps (edn/read-string (subs movement-command 1))]
@@ -58,7 +86,7 @@
 
 ; Program logic
 
-(parse-wire-command (read-input-file))
+; (parse-wire-command (read-input-file))
 ; day03, part 1
 
 ; day03, part 2

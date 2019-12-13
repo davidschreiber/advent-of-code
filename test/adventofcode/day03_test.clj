@@ -35,21 +35,6 @@
     (is (= 10 (manhattan-distance [4  8] [6 0])))
     (is (= 0  (manhattan-distance [6 8] [6 8])))))
 
-(deftest test-create-line
-  (testing "Create line"
-    (is (= [[0 0] [10 20]] (create-line [0 0] [10 20])))
-    (is (= [[10 20] [10 20]] (create-line [10 20] [0 0])))
-    (is (= [[10 20] [16 24]] (create-line [10 20] [6 4])))
-    (is (= [[10 20] [9 14]] (create-line [10 20] [-1 -6])))))
-
-(deftest test-movement-vector
-  (testing "Creates a movement vector from a wiring command"
-    (is (= [0 0] (to-movement-vector "U0")))
-    (is (= [0 -10] (to-movement-vector "U10")))
-    (is (= [0 6] (to-movement-vector "D6")))
-    (is (= [10 0] (to-movement-vector "R10")))
-    (is (= [-5 0] (to-movement-vector "L5")))))
-
 (deftest test-get-steps
   (testing "Extracts steps"
     (is (= 10 (get-steps "R10")))
@@ -92,3 +77,8 @@
 
 (deftest test-parse-wire-commands
   (testing "Wire command string is turned into array of movement vectors."))
+
+(deftest test-find-wire-intersections
+  (testing "Wires without intersections"
+    (is (= #{} (find-intersections [[0 0] [0 1]] [[1 0] [1 1]])))
+    (is (= #{[0 1]} (find-intersections [[0 0] [0 1]] [[1 0] [1 1] [0 1]])))))

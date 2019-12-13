@@ -26,18 +26,10 @@
 (defn manhattan-distance
   "Manhattan distance of the two given points."
   [p1 p2]
-  (+ (horizontal-distance p1 p2) (vertical-distance p1 p2)))
+   (+ (horizontal-distance p1 p2) (vertical-distance p1 p2)))
 
-; Line creation
-(defn create-line
-  "Create a line using the given start point and movement vector. The
-   returned line is of the form [start-point end-point]"
-  [start-point movement-vector]
-  (let [[x1 y1] start-point [vx vy] movement-vector]
-    [[x1 y1] [(+ x1 vx) (+ y1 vy)]]))
 
 ; Wire creation
-
 (defn get-steps [command]
   (edn/read-string (subs command 1)))
 
@@ -71,33 +63,35 @@
      current-wire
      (let [command (first command-list)
            end-point (last current-wire)
-           direction (subs command 0 1)
-           steps (get-steps command)
            new-wire (concat current-wire
                             (rest (produce-steps-from end-point command)))]
        (create-wire new-wire (rest command-list))))))
 
+; Wire testing
+(defn find-intersections
+  [wire1 wire2]
+  (let [wire-set1 (set wire1)
+        wire-set2 (set wire2)]
+    (clojure.set/intersection wire-set1 wire-set2)))
+
 ; Input parsing
 (defn read-input-file [] (slurp "day3.txt"))
 
-(defn parse-wire-command [file-content]
+(defn parse-wire-command
+  "Takes the raw input file content and returns the actual wires in coordinates"
+  [file-content]
   (->> (str/split-lines file-content)
-       (map #(str/split % #","))))
-
-(defn to-movement-vector
-  "Takes a single movement command (for example 'U10') and turns it into
-   a 2-dimensional movement vector in the form of [x y] in screen coordinates."
-  [movement-command]
-  (let [direction (subs movement-command 0 1)
-        steps (edn/read-string (subs movement-command 1))]
-    (case direction
-      "U" [0 (unchecked-negate steps)]
-      "D" [0 steps]
-      "R" [steps 0]
-      "L" [(unchecked-negate steps) 0])))
+       (map #(str/split % #","))
+       (map #(create-wire %))))
 
 ; Program logic
 
+(defn day3-part1 []
+  (let [wires (parse-wire-command (read-input-file))]
+    (second
+     (sort
+      (map (partial manhattan-distance [0 0])
+           (find-intersections (first wires) (second wires)))))))
 ; (parse-wire-command (read-input-file))
 ; day03, part 1
 

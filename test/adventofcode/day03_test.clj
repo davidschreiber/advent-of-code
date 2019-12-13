@@ -75,10 +75,15 @@
   (testing "Walking in circles"
     (is (= [0 0] (last (create-wire ["R2", "U2", "L2", "D2"]))))))
 
-(deftest test-parse-wire-commands
-  (testing "Wire command string is turned into array of movement vectors."))
-
 (deftest test-find-wire-intersections
   (testing "Wires without intersections"
     (is (= #{} (find-intersections [[0 0] [0 1]] [[1 0] [1 1]])))
     (is (= #{[0 1]} (find-intersections [[0 0] [0 1]] [[1 0] [1 1] [0 1]])))))
+
+(deftest test-get-wire-length-to
+  (testing "Returns wire length to a given coordinate"
+    (is (= 0 (get-wire-length-to [[0 0]] [0 0])))
+    (is (= 3 (get-wire-length-to [[0 0] [1 0] [2 0] [2 1]] [2 1]))))
+
+  (testing "Returns nil if cordinate not in wire"
+    (is (nil? (get-wire-length-to [[0 0] [1 0] [2 0] [2 1]] [2 2])))))

@@ -26,7 +26,7 @@
 (defn manhattan-distance
   "Manhattan distance of the two given points."
   [p1 p2]
-   (+ (horizontal-distance p1 p2) (vertical-distance p1 p2)))
+  (+ (horizontal-distance p1 p2) (vertical-distance p1 p2)))
 
 
 ; Wire creation
@@ -75,9 +75,11 @@
     (clojure.set/intersection wire-set1 wire-set2)))
 
 ; Input parsing
-(defn read-input-file [] (slurp "day3.txt"))
+(defn read-input-file
+  ([] (read-input-file "day3.txt"))
+  ([filename] (slurp filename)))
 
-(defn parse-wire-command
+(defn parse-wires
   "Takes the raw input file content and returns the actual wires in coordinates"
   [file-content]
   (->> (str/split-lines file-content)
@@ -86,13 +88,33 @@
 
 ; Program logic
 
+; day03, part 1
+
 (defn day3-part1 []
-  (let [wires (parse-wire-command (read-input-file))]
+  (let [wires (parse-wires (read-input-file))]
     (second
      (sort
       (map (partial manhattan-distance [0 0])
            (find-intersections (first wires) (second wires)))))))
-; (parse-wire-command (read-input-file))
-; day03, part 1
 
 ; day03, part 2
+
+(defn get-wire-length-to
+  "Returns the length of the wire until coordinate or nil if the coordinate
+   is not part of the wire."
+  [wire coordinate]
+  (let [index (.indexOf wire coordinate)]
+    (if (> index -1)
+      index
+      nil)))
+
+(defn day3-part2 []
+  (let [wires (parse-wire-command (read-input-file))
+        len-calculator-1 (partial get-wire-length-to (first wires))
+        len-calculator-2 (partial get-wire-length-to (second wires))]
+    (second
+     (sort
+      (map #(+ (len-calculator-1 %) (len-calculator-2 %))
+           (find-intersections (first wires) (second wires)))))))
+
+(day3-part2)

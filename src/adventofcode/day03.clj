@@ -36,14 +36,14 @@
   (let [[x1 y1] start-point [vx vy] movement-vector]
     [[x1 y1] [(+ x1 vx) (+ y1 vy)]]))
 
-; Step coordinates
+; Wire creation
 
 (defn get-steps [command]
   (edn/read-string (subs command 1)))
 
-(defn get-step-coordinates
-  [start command]
-  (let [[x y] start
+(defn produce-steps-from
+  [start-coordinate command]
+  (let [[x y] start-coordinate
         direction (subs command 0 1)
         steps (get-steps command)]
     (case direction
@@ -64,13 +64,25 @@
                       (range x (- x steps 1) -1)
                       (repeat (+ steps 1) y))))))
 
+(defn create-wire
+  ([command-list] (create-wire [[0 0]] command-list))
+  ([current-wire command-list]
+   (if (empty? command-list)
+     current-wire
+     (let [command (first command-list)
+           end-point (last current-wire)
+           direction (subs command 0 1)
+           steps (get-steps command)
+           new-wire (concat current-wire
+                            (rest (produce-steps-from end-point command)))]
+       (create-wire new-wire (rest command-list))))))
+
 ; Input parsing
 (defn read-input-file [] (slurp "day3.txt"))
 
-; (defn parse-wire-command [file-content]
-;   (->> (str/split-lines file-content)
-;        (map #(str/split % #","))
-;        (loop []))
+(defn parse-wire-command [file-content]
+  (->> (str/split-lines file-content)
+       (map #(str/split % #","))))
 
 (defn to-movement-vector
   "Takes a single movement command (for example 'U10') and turns it into

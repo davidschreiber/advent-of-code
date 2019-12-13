@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             [adventofcode.day03 :refer :all]))
 
+
 (deftest test-scalar-distance
   (testing "Scalar distance of values"
     (is (= 0 (scalar-distance 0 0)))
@@ -55,29 +56,39 @@
     (is (= 0 (get-steps "R0")))
     (is (= 3 (get-steps "R3")))))
 
-(deftest test-get-step-coordinates
+(deftest test-produce-steps-from
   (testing "Step coordinates right"
-    (is (= [[0 0] [1 0] [2 0]] (get-step-coordinates [0 0] "R2")))
-    (is (= [[0 0] [1 0] [2 0] [3 0]] (get-step-coordinates [0 0] "R3")))
-    (is (= [[10 5] [11 5] [12 5] [13 5]] (get-step-coordinates [10 5] "R3"))))
+    (is (= [[0 0] [1 0] [2 0]] (produce-steps-from [0 0] "R2")))
+    (is (= [[0 0] [1 0] [2 0] [3 0]] (produce-steps-from [0 0] "R3")))
+    (is (= [[10 5] [11 5] [12 5] [13 5]] (produce-steps-from [10 5] "R3"))))
 
   (testing "Step coordinates right"
-    (is (= [[0 0] [-1 0] [-2 0]] (get-step-coordinates [0 0] "L2")))
-    (is (= [[0 0] [-1 0] [-2 0] [-3 0]] (get-step-coordinates [0 0] "L3")))
-    (is (= [[10 5] [9 5] [8 5] [7 5]] (get-step-coordinates [10 5] "L3"))))
-  
+    (is (= [[0 0] [-1 0] [-2 0]] (produce-steps-from [0 0] "L2")))
+    (is (= [[0 0] [-1 0] [-2 0] [-3 0]] (produce-steps-from [0 0] "L3")))
+    (is (= [[10 5] [9 5] [8 5] [7 5]] (produce-steps-from [10 5] "L3"))))
+
   (testing "Step coordinates down"
-    (is (= [[0 0] [0 1] [0 2]] (get-step-coordinates [0 0] "D2")))
-    (is (= [[0 0] [0 1] [0 2] [0 3]] (get-step-coordinates [0 0] "D3")))
-    (is (= [[10 5] [10 6] [10 7]] (get-step-coordinates [10 5] "D2"))))
+    (is (= [[0 0] [0 1] [0 2]] (produce-steps-from [0 0] "D2")))
+    (is (= [[0 0] [0 1] [0 2] [0 3]] (produce-steps-from [0 0] "D3")))
+    (is (= [[10 5] [10 6] [10 7]] (produce-steps-from [10 5] "D2"))))
 
   (testing "Step coordinates up"
-    (is (= [[0 0] [0 -1] [0 -2]] (get-step-coordinates [0 0] "U2")))
-    (is (= [[0 0] [0 -1] [0 -2] [0 -3]] (get-step-coordinates [0 0] "U3")))
-    (is (= [[10 5] [10 4] [10 3]] (get-step-coordinates [10 5] "U2"))))
+    (is (= [[0 0] [0 -1] [0 -2]] (produce-steps-from [0 0] "U2")))
+    (is (= [[0 0] [0 -1] [0 -2] [0 -3]] (produce-steps-from [0 0] "U3")))
+    (is (= [[10 5] [10 4] [10 3]] (produce-steps-from [10 5] "U2")))))
 
-  )
+(deftest test-produce-steps-from
+  (testing "Create steps from"
+    (is (= [[0 0] [1 0] [2 0]] (produce-steps-from [0 0] "R2")))
+    (is (= [[0 0] [1 0] [2 0] [3 0]] (produce-steps-from [0 0] "R3")))))
 
+(deftest test-create-wire
+  (testing "Turns wire commands into wire"
+    (is (= [[0 0] [1 0] [2 0]] (create-wire ["R2"])))
+    (is (= [[0 0] [1 0] [2 0] [2 -1] [2 -2]] (create-wire ["R2", "U2"]))))
+
+  (testing "Walking in circles"
+    (is (= [0 0] (last (create-wire ["R2", "U2", "L2", "D2"]))))))
 
 (deftest test-parse-wire-commands
   (testing "Wire command string is turned into array of movement vectors."))

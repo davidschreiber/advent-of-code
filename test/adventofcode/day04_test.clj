@@ -2,29 +2,23 @@
   (:require [clojure.test :refer :all]
             [adventofcode.day04 :refer :all]))
 
-(deftest test-has-adjacent-digits
+(deftest test-has-doubles-or-larger
   (testing "Does have adjacent digits that are the same"
-    (is (true? (has-adjacent-digits? 11)))
-    (is (true? (has-adjacent-digits? 122)))
-    (is (true? (has-adjacent-digits? 121445)))
-    (is (true? (has-adjacent-digits? 1111111))))
+    (is (true? (has-doubles-or-larger? 11)))
+    (is (true? (has-doubles-or-larger? 122)))
+    (is (true? (has-doubles-or-larger? 121445)))
+    (is (true? (has-doubles-or-larger? 1111111))))
 
   (testing "Does have adjacent digits of three which are the same"
-    (is (true? (has-adjacent-digits? 3 111)))
-    (is (true? (has-adjacent-digits? 3 1222)))
-    (is (true? (has-adjacent-digits? 3 1214445)))
-    (is (true? (has-adjacent-digits? 3 1111111))))
+    (is (true? (has-doubles-or-larger? 111)))
+    (is (true? (has-doubles-or-larger? 1222)))
+    (is (true? (has-doubles-or-larger? 1214445)))
+    (is (true? (has-doubles-or-larger? 1111111))))
 
   (testing "Does not have adjacent digits that are the same"
-    (is (not (true? (has-adjacent-digits? 10))))
-    (is (not (true? (has-adjacent-digits? 10101010))))
-    (is (not (true? (has-adjacent-digits? 123456)))))
-
-  (testing "Does not have adjacent digits of three which are the same"
-    (is (not (true? (has-adjacent-digits? 3 11))))
-    (is (not (true? (has-adjacent-digits? 3 122))))
-    (is (not (true? (has-adjacent-digits? 3 1214456))))
-    (is (not (true? (has-adjacent-digits? 3 112113344))))))
+    (is (not (true? (has-doubles-or-larger? 10))))
+    (is (not (true? (has-doubles-or-larger? 10101010))))
+    (is (not (true? (has-doubles-or-larger? 123456))))))
 
 (deftest test-monotonical-non-decreasing-digits
   (testing "All digits are monotonical non decreasing"

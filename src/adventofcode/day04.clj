@@ -1,7 +1,5 @@
 ; day04
-(ns adventofcode.day04
-  (:require [clojure.string :as str])
-  (:require [clojure.edn :as edn]))
+(ns adventofcode.day04)
 
 (def START 152085)
 (def END   670283)

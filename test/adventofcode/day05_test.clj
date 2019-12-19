@@ -2,18 +2,30 @@
   (:require [clojure.test :refer :all]
             [adventofcode.day05 :refer :all]))
 
-(deftest test-get-opcode
-  (testing "get-opcode"
+(deftest test-parse-parameters
+  (testing "Returns the resolved parameters in immediate mode"
+    (is (= [2,3,4] (parse-parameters [1101,2,3,4,0] 0 [1,1] 1)))
+    (is (= [3,4,5] (parse-parameters [1101,3,4,5,0] 0 [1,1] 1)))
+    ))
+
+(deftest test-parse-operation
     (testing "returns opcode stored at instruction pointer"
-      (is (= 1 (get-opcode [1,2,3,4] 0)))
-      (is (= 2 (get-opcode [1,2,3,4] 1)))
-      (is (= 3 (get-opcode [1,2,3,4] 2)))
-      (is (= 4 (get-opcode [1,2,3,4] 3))))))
+      (is (= [OP_ADD [3,4,4]] (parse-operation [0001,2,3,4,0] 0)))
+      (is (= [OP_MULTIPLY [3,4,4]] (parse-operation [0002,2,3,4,0] 0)))
+      ))
 
 (deftest test-calculate-next-pointer
-  (testing "next-pointer increments pointer by 4"
-    (is (= 4 (calculate-next-pointer 0)))
-    (is (= 8 (calculate-next-pointer 4)))))
+  (testing "next-pointer increments pointer by 4 for multiply and add operations"
+    (is (= 4 (calculate-next-pointer 0 OP_ADD)))
+    (is (= 4 (calculate-next-pointer 0 OP_MULTIPLY)))
+    (is (= 8 (calculate-next-pointer 4 OP_MULTIPLY)))
+    (is (= 12 (calculate-next-pointer 8 OP_MULTIPLY))))
+
+  (testing "next-pointer increments by 2 for input and output operations"
+    (is (= 2 (calculate-next-pointer 0 OP_INPUT)))
+    (is (= 2 (calculate-next-pointer 0 OP_OUTPUT)))
+    (is (= 4 (calculate-next-pointer 2 OP_OUTPUT)))
+    (is (= 6 (calculate-next-pointer 4 OP_OUTPUT)))))
 
 (deftest test-output-pos
   (testing "output-pos"
@@ -35,35 +47,9 @@
     (is (= 2  (get-input-value-at [1,4,5,4,2,4,5,1] 4 1)))
     (is (= 4  (get-input-value-at [1,4,5,4,2,4,5,1] 4 2)))))
 
-(deftest test-run-program
-  (testing "Running the program with pre-defined values from the instructions."
-    (is (= [2 0 0 0 99] (run-program [1,0,0,0,99])))
-    (is (= [2 3 0 6 99] (run-program [2,3,0,3,99])))
-    (is (= [2 4 4 5 99 9801] (run-program [2,4,4,5,99,0])))
-    (is (= [30 1 1 4 2 5 6 0 99] (run-program [1,1,1,4,99,5,6,0,99])))))
-
-
-
-
-
-
-
-(deftest test-restore-1202-program-alarm-state
-  (testing "Fixes 1202 program seed state"
-    (is (= [1,12,2,0,1,2,3,4] (restore-1202-program-alarm-state [1,2,3,0,1,2,3,4])))
-    (is (= [99,12,2,1] (restore-1202-program-alarm-state [99,1,1,1])))))
-
-(deftest test-prepare-program-seeds
-  (testing "prepare-program-seeds injects given seed values into program"
-    (is (= [1,2,3] (prepare-program-seeds [1,0,0] 2 3)))
-    (is (= [1,2,3,0,0] (prepare-program-seeds [1,0,0,0,0] 2 3)))
-    (is (= [1,99,0,0,0,99] (prepare-program-seeds [1,0,0,0,0,99] 99 0)))))
-
-(deftest test-create-program-seeds
-  (testing "Creating program seeds produces values"
-    (is (= '((0 0) (1 0) (2 0) (0 1) (1 1) (2 1) (0 2) (1 2) (2 2)) (create-program-seeds 3 3)))
-    (is (= '((0 0) (1 0)) (create-program-seeds 2 1)))))
-
-(deftest test-find-program-seeds
-  (testing "Checks that find-program-seeds produces the originally used 1202 code."
-    (is (= [12, 2] (find-program-seeds (read-program) 3409710)))))
+; (deftest test-run-program
+;   (testing "Running the program with pre-defined values from the instructions."
+;     (is (= [2 0 0 0 99] (run-program [1,0,0,0,99])))
+;     (is (= [2 3 0 6 99] (run-program [2,3,0,3,99])))
+;     (is (= [2 4 4 5 99 9801] (run-program [2,4,4,5,99,0])))
+;     (is (= [30 1 1 4 2 5 6 0 99] (run-program [1,1,1,4,99,5,6,0,99])))))

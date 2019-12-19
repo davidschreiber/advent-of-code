@@ -9,10 +9,18 @@
 (def OP_EXIT 99)
 (def PROGRAM_STEP 4)
 
+(def PARAM_MODE_IMMEDIATE 1)
+(def PARAM_MODE_ADDRESS PARAM_MODE_IMMEDIATE)
+(def PARAM_MODE_POSITION 0)
+
+
 (def INPUT
   "Input value, which we provide to the only input operation in the TEST program"
-  1)
+  [1])
 
+(defn split-number-into-digits
+  "Converts the given number into a sequence of its digits."
+  [number] (map #(Character/digit % 10) (str number)))
 
 (defn read-program
   "Returns the parsed program"
@@ -21,10 +29,38 @@
     (->> (str/split program #",")
          (mapv #(Integer/parseInt %1)))))
 
-(defn get-opcode
-  "Reads the opcode from the program at the given pointer."
+(defn second-last
+  "Returns the second but last item in coll in linear time."
+  [coll] (last (butlast coll)))
+
+(defn get-param
+  [param-pos program pointer param-mode]
+  (condp some [param-mode]
+    #{PARAM_MODE_ADDRESS PARAM_MODE_IMMEDIATE} (nth program (+ pointer param-pos 1))
+    #{PARAM_MODE_POSITION} (let [address (nth program (+ pointer param-pos 1))]
+                             (nth program address))))
+(defn parse-parameters
+  [program pointer parameter-modes operation]
+  (condp some [operation]
+    #{OP_ADD OP_MULTIPLY} [(get-param 0 program pointer (last parameter-modes))
+                           (get-param 1 program pointer (second-last parameter-modes))
+                           (get-param 2 program pointer PARAM_MODE_ADDRESS)]
+
+; WHAT SHOULD WE DO HERE? Is this line correct?
+    #{OP_INPUT OP_OUTPUT} [(get-param 0 program pointer (last parameter-modes))])
+
+(defn parse-operation
+  "Reads the opcode and resolved parameters from the program at the given pointer."
   [program pointer]
-  (nth program pointer))
+  (let [opcode-vector (split-number-into-digits (nth program pointer))
+        operation (clojure.string/join (take-last 2 opcode-vector))
+        parameter-modes (take (- (count opcode-vector) 2) opcode-vector)
+        parameters (parse-parameters program
+                                     pointer
+                                     parameter-modes
+                                     operation)]
+    [operation parameters]))
+
 
 (defn get-input-value-at
   "Given a program and a program pointer, this methods resolves 
@@ -39,8 +75,11 @@
 (defn calculate-next-pointer
   "Returns the next incode pointer which should be executed after the
    current pointer."
-  [pointer]
-  (+ pointer PROGRAM_STEP))
+  [pointer opcode]
+  (let [step-size (condp some [opcode]
+                    #{OP_ADD OP_MULTIPLY} 4
+                    #{OP_INPUT OP_OUTPUT} 2)]
+    (+ pointer step-size)))
 
 (defn execute-op-at
   "Takes a program, a frame pointer and an operation (+ or *) which
@@ -63,8 +102,8 @@
    as soon as the exit code 99 is reached."
   ([program input] (run-program program 0 input []))
   ([program pointer input output]
-   (let [opcode (get-opcode program pointer)
-         next-pointer (calculate-next-pointer pointer)]
+   (let [[opcode parameters] (parse-operation program pointer)
+         next-pointer (calculate-next-pointer pointer opcode)]
      (condp = opcode
        OP_ADD  (run-program (add program pointer) next-pointer)
        OP_MULTIPLY (run-program (multiply program pointer) next-pointer)
@@ -72,41 +111,20 @@
        OP_OUTPUT (execute-op-output program pointer input output)
        OP_EXIT output))))
 
+(defn do-input [program pointer input-value])
+(defn do-output [program pointer output])
+
 (defn execute-op-input
   [program pointer input output]
-  (run-program (do-input program pointer (first input)) next-pointer (rest input) output))
+  ; (run-program (do-input program pointer (first input)) next-pointer (rest input) output))
+  ())
 
 (defn execute-op-output
   [program pointer input output]
-  (run-program program next-pointer input (do-output program pointer output)))
-
-(defn prepare-program-seeds
-  [program seed1 seed2]
-  (-> program
-      (assoc 1 seed1)
-      (assoc 2 seed2)))
-
-(defn get-program-result [program] (first program))
-
-; day 2; example 1
-(defn restore-1202-program-alarm-state
-  [program]
-  (prepare-program-seeds program 12 2))
-
-(defn load-and-run-program-with-seeds
-  [seed1 seed2]
-  (get-program-result
-   (run-program
-    (prepare-program-seeds
-     (read-program) seed1 seed2))))
-
-(defn day2-part1 []
-  (get-program-result
-   (run-program
-    (restore-1202-program-alarm-state
-     (read-program)))))
+  ; (run-program program next-pointer input (do-output program pointer output)))
+  ())
 
 (defn day5-part1
   "Takes input and program, and returns the output values of the TEST program."
-  [input program]
-  (run-program (read-program)))
+  []
+  (run-program (read-program) INPUT))
